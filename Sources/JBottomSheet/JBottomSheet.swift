@@ -4,11 +4,12 @@
 import SwiftUI
 import LegacyScrollView
 
-public struct JBottomSheetModifier<SheetContent: View>: ViewModifier {
+public struct JBottomSheetModifier<SheetContent: View, HeaderContent: View>: ViewModifier {
     @Binding var position: BottomSheetPosition
     let switchablePositions: [BottomSheetPosition]
     let isScrollable: Bool
     let sheetContent: () -> SheetContent
+    let headerContent: (() -> HeaderContent)?
     
     @State private var canScroll = false
     
@@ -16,24 +17,27 @@ public struct JBottomSheetModifier<SheetContent: View>: ViewModifier {
         position: Binding<BottomSheetPosition>,
         switchablePositions: [BottomSheetPosition],
         isScrollable: Bool,
-        sheetContent: @escaping () -> SheetContent
+        sheetContent: @escaping () -> SheetContent,
+        headerContent: (() -> HeaderContent)? = nil
     ) {
         self._position = position
         self.switchablePositions = switchablePositions
         self.isScrollable = isScrollable
         self.sheetContent = sheetContent
+        self.headerContent = headerContent
     }
     
     public func body(content: Content) -> some View {
-        if isScrollable {
-            content
-                .onChange(of: position) { newValue in
-                    canScroll = (newValue == .relative(1.0))
-                }
-                .bottomSheet(
-                    bottomSheetPosition: $position,
-                    switchablePositions: switchablePositions
-                ) {
+        content
+            .onChange(of: position) { newValue in
+                canScroll = (newValue == .relative(1.0))
+            }
+            .bottomSheet(
+                bottomSheetPosition: $position,
+                switchablePositions: switchablePositions,
+                headerContent: headerContent ?? { nil }
+            ) {
+                if isScrollable {
                     LegacyScrollView {
                         sheetContent()
                     }
@@ -42,25 +46,29 @@ public struct JBottomSheetModifier<SheetContent: View>: ViewModifier {
                         if !isDown { canScroll = false }
                         return canScroll
                     }
-                }
-                .enableContentDrag()
-        } else {
-            content
-                .bottomSheet(
-                    bottomSheetPosition: $position,
-                    switchablePositions: switchablePositions
-                ) {
+                } else {
                     sheetContent()
                 }
-        }
+            }
+            .enableSwipeToDismiss(!isScrollable)
+            .enableTapToDismiss(!isScrollable)
+            .enableContentDrag(isScrollable)
+            .enableBackgroundBlur(!isScrollable)
+            .customThreshold(0.1)
+            .customBackground(
+                Color.white
+                    .cornerRadius(12, corners: [.topLeft, .topRight])
+            )
+            .backgroundBlurMaterial(.systemDark)
     }
 }
 
 public extension View {
-    func jBottomSheet<SheetContent: View>(
+    func jBottomSheet<SheetContent: View, HeaderContent: View>(
         position: Binding<BottomSheetPosition>,
-        switchablePositions: [BottomSheetPosition] = [.relative(0.2), .relative(0.5), .relative(1.0)],
+        switchablePositions: [BottomSheetPosition] = [.dynamic],
         isScrollable: Bool = false,
+        @ViewBuilder header: @escaping () -> HeaderContent,
         @ViewBuilder content: @escaping () -> SheetContent
     ) -> some View {
         modifier(
@@ -68,8 +76,48 @@ public extension View {
                 position: position,
                 switchablePositions: switchablePositions,
                 isScrollable: isScrollable,
-                sheetContent: content
+                sheetContent: content,
+                headerContent: header
+            )
+        )
+    }
+    
+    // header yo'q variant
+    func jBottomSheet<SheetContent: View>(
+        position: Binding<BottomSheetPosition>,
+        switchablePositions: [BottomSheetPosition] = [.dynamic],
+        isScrollable: Bool = false,
+        @ViewBuilder content: @escaping () -> SheetContent
+    ) -> some View {
+        modifier(
+            JBottomSheetModifier<SheetContent, EmptyView>(
+                position: position,
+                switchablePositions: switchablePositions,
+                isScrollable: isScrollable,
+                sheetContent: content,
+                headerContent: nil
             )
         )
     }
 }
+
+
+
+//struct ContentView: View {
+//    @State var pos: BottomSheetPosition = .dynamic
+//    
+//    var body: some View {
+//        Text("Test")
+//            .jBottomSheet(position: $pos) {
+//                VStack(spacing: 10) {
+//                    ForEach(0..<10, id: \.self) {index in
+//                        Text("Jascoo")
+//                    }
+//                }
+//            }
+//    }
+//}
+//
+//#Preview {
+//    ContentView()
+//}
