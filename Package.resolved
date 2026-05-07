@@ -1,0 +1,15 @@
+{
+  "originHash" : "d08898a97f7df2cb38eb41889db5e11bb05a16b9ed11d0796a1ca5449700dacd",
+  "pins" : [
+    {
+      "identity" : "legacyscrollview",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/perimeter-inc/LegacyScrollView",
+      "state" : {
+        "revision" : "8622c91bc5b8578adcca91ea3ebbb63ec132e9cf",
+        "version" : "2.1.0"
+      }
+    }
+  ],
+  "version" : 3
+}
