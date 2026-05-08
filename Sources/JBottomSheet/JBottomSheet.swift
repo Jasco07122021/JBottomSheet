@@ -40,6 +40,7 @@ public struct JBottomSheetModifier<SheetContent: View, HeaderContent: View>: Vie
                 if isScrollable {
                     LegacyScrollView {
                         sheetContent()
+                            .padding(.bottom, UIApplication.safeAreaInsets.bottom)
                     }
                     .onGestureShouldBegin { pan, scrollView in
                         let isDown = scrollView.contentOffset.y - pan.translation(in: scrollView).y > 0
@@ -48,6 +49,7 @@ public struct JBottomSheetModifier<SheetContent: View, HeaderContent: View>: Vie
                     }
                 } else {
                     sheetContent()
+                        .padding(.bottom, UIApplication.safeAreaInsets.bottom)
                 }
             }
             .enableSwipeToDismiss(!isScrollable)
