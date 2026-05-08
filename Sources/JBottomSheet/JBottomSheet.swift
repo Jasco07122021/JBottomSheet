@@ -8,6 +8,7 @@ public struct JBottomSheetModifier<SheetContent: View, HeaderContent: View>: Vie
     @Binding var position: BottomSheetPosition
     let switchablePositions: [BottomSheetPosition]
     let isScrollable: Bool
+    let showSafeAreaPadding: Bool
     let sheetContent: () -> SheetContent
     let headerContent: (() -> HeaderContent)?
     
@@ -17,14 +18,20 @@ public struct JBottomSheetModifier<SheetContent: View, HeaderContent: View>: Vie
         position: Binding<BottomSheetPosition>,
         switchablePositions: [BottomSheetPosition],
         isScrollable: Bool,
+        showSafeAreaPadding: Bool,
         sheetContent: @escaping () -> SheetContent,
         headerContent: (() -> HeaderContent)? = nil
     ) {
         self._position = position
         self.switchablePositions = switchablePositions
         self.isScrollable = isScrollable
+        self.showSafeAreaPadding = showSafeAreaPadding
         self.sheetContent = sheetContent
         self.headerContent = headerContent
+    }
+    
+    private var safeAreaPadding: CGFloat {
+        showSafeAreaPadding ? UIApplication.safeAreaInsets.bottom : 0
     }
     
     public func body(content: Content) -> some View {
@@ -40,7 +47,7 @@ public struct JBottomSheetModifier<SheetContent: View, HeaderContent: View>: Vie
                 if isScrollable {
                     LegacyScrollView {
                         sheetContent()
-                            .padding(.bottom, UIApplication.safeAreaInsets.bottom)
+                            .padding(.bottom, safeAreaPadding)
                     }
                     .onGestureShouldBegin { pan, scrollView in
                         let isDown = scrollView.contentOffset.y - pan.translation(in: scrollView).y > 0
@@ -49,7 +56,7 @@ public struct JBottomSheetModifier<SheetContent: View, HeaderContent: View>: Vie
                     }
                 } else {
                     sheetContent()
-                        .padding(.bottom, UIApplication.safeAreaInsets.bottom)
+                        .padding(.bottom, safeAreaPadding)
                 }
             }
             .enableSwipeToDismiss(!isScrollable)
@@ -70,6 +77,7 @@ public extension View {
         position: Binding<BottomSheetPosition>,
         switchablePositions: [BottomSheetPosition] = [.dynamic],
         isScrollable: Bool = false,
+        showSafeAreaPadding: Bool = true,
         @ViewBuilder header: @escaping () -> HeaderContent,
         @ViewBuilder content: @escaping () -> SheetContent
     ) -> some View {
@@ -78,6 +86,7 @@ public extension View {
                 position: position,
                 switchablePositions: switchablePositions,
                 isScrollable: isScrollable,
+                showSafeAreaPadding: showSafeAreaPadding,
                 sheetContent: content,
                 headerContent: header
             )
@@ -89,6 +98,7 @@ public extension View {
         position: Binding<BottomSheetPosition>,
         switchablePositions: [BottomSheetPosition] = [.dynamic],
         isScrollable: Bool = false,
+        showSafeAreaPadding: Bool = true,
         @ViewBuilder content: @escaping () -> SheetContent
     ) -> some View {
         modifier(
@@ -96,6 +106,7 @@ public extension View {
                 position: position,
                 switchablePositions: switchablePositions,
                 isScrollable: isScrollable,
+                showSafeAreaPadding: showSafeAreaPadding,
                 sheetContent: content,
                 headerContent: nil
             )
