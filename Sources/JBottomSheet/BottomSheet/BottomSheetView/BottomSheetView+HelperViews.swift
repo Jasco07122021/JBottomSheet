@@ -10,25 +10,31 @@ import Combine
 
 internal extension BottomSheetView {
     func fullScreenBackground(with geometry: GeometryProxy) -> some View {
-        VisualEffectView(visualEffect: self.configuration.backgroundBlurMaterial)
-            .opacity(
-                // When `backgroundBlur` is enabled the opacity is calculated
-                // based on the current height of the BottomSheet relative to its maximum height
-                // Otherwise it is 0
-                self.opacity(with: geometry)
-            )
+        Group {
+            if let backgroundBlurView = self.configuration.backgroundBlurView {
+                backgroundBlurView
+            } else {
+                Color.clear
+            }
+        }
+        .opacity(
+            // When `backgroundBlur` is enabled the opacity is calculated
+            // based on the current height of the BottomSheet relative to its maximum height
+            // Otherwise it is 0
+            self.opacity(with: geometry)
+        )
         // Make the background fill the whole screen including safe area
-            .frame(
-                maxWidth: .infinity,
-                maxHeight: .infinity
-            )
-            .edgesIgnoringSafeArea(.all)
+        .frame(
+            maxWidth: .infinity,
+            maxHeight: .infinity
+        )
+        .edgesIgnoringSafeArea(.all)
         // Make the background tap-able for `tapToDismiss`
-            .contentShape(Rectangle())
-            .allowsHitTesting(self.configuration.isTapToDismissEnabled)
-            .onTapGesture(perform: self.tapToDismissAction)
+        .contentShape(Rectangle())
+        .allowsHitTesting(self.configuration.isTapToDismissEnabled)
+        .onTapGesture(perform: self.tapToDismissAction)
         // Make the background transition via opacity
-            .transition(.opacity)
+        .transition(.opacity)
     }
     
     func bottomSheet(with geometry: GeometryProxy) -> some View {

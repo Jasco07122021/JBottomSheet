@@ -28,12 +28,22 @@ public extension BottomSheet {
     /// Changing the material does not affect whether the blur layer is shown.
     /// To toggle the blur layer please use the `.enableBackgroundBlur()` modifier.
     ///
-    /// - Parameters:
-    ///   - material: The new material.
-    ///
     /// - Returns: A view with a different material of the blur layer.
-    func backgroundBlurMaterial(_ material: VisualEffect) -> BottomSheet {
-        self.configuration.backgroundBlurMaterial = material
+    func backgroundBlurView<BackgroundBlurView>(_ view: BackgroundBlurView?) -> BottomSheet where BackgroundBlurView: View {
+        if let view = view {
+            self.configuration.backgroundBlurView = AnyView(view)
+        }
+        self.configuration.backgroundBlurViewID = UUID()
+        return self
+    }
+    
+    func backgroundBlurView<BBV>(
+        @ViewBuilder content: () -> BBV?
+    ) -> BottomSheet where BBV: View {
+        if let content = content() {
+            self.configuration.backgroundBlurView = AnyView(content)
+        }
+        self.configuration.backgroundBlurViewID = UUID()
         return self
     }
 }

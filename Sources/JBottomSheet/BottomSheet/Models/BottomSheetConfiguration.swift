@@ -14,7 +14,7 @@ internal class BottomSheetConfiguration: Equatable {
         rhs: BottomSheetConfiguration
     ) -> Bool {
         return lhs.animation == rhs.animation &&
-        lhs.backgroundBlurMaterial == rhs.backgroundBlurMaterial &&
+        lhs.backgroundBlurViewID == rhs.backgroundBlurViewID &&
         lhs.backgroundViewID == rhs.backgroundViewID &&
         lhs.dragIndicatorColor == rhs.dragIndicatorColor &&
         lhs.isAppleScrollBehaviorEnabled == rhs.isAppleScrollBehaviorEnabled &&
@@ -26,6 +26,7 @@ internal class BottomSheetConfiguration: Equatable {
         lhs.isResizable == rhs.isResizable &&
         lhs.isSwipeToDismissEnabled == rhs.isSwipeToDismissEnabled &&
         lhs.isTapToDismissEnabled == rhs.isTapToDismissEnabled &&
+        lhs.isDraggable == rhs.isDraggable &&
         lhs.iPadFloatingSheet == rhs.iPadFloatingSheet &&
         lhs.sheetWidth == rhs.sheetWidth &&
         lhs.accountForKeyboardHeight == rhs.accountForKeyboardHeight
@@ -36,7 +37,8 @@ internal class BottomSheetConfiguration: Equatable {
         dampingFraction: 0.75,
         blendDuration: 1
     )
-    var backgroundBlurMaterial: VisualEffect = .system
+    var backgroundBlurView: AnyView?
+    var backgroundBlurViewID: UUID?
     var backgroundViewID: UUID?
     var backgroundView: AnyView?
     var dragIndicatorAction: ((GeometryProxy) -> Void)?
@@ -54,6 +56,7 @@ internal class BottomSheetConfiguration: Equatable {
     var isResizable: Bool = true
     var isSwipeToDismissEnabled: Bool = false
     var isTapToDismissEnabled: Bool = false
+    var isDraggable: Bool = false
     var onDismiss: () -> Void = {}
     var onDragEnded: (DragGesture.Value) -> Void = { _ in }
     var onDragChanged: (DragGesture.Value) -> Void = { _ in }

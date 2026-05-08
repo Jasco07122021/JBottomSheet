@@ -54,4 +54,9 @@ public extension BottomSheet {
         self.configuration.dragPositionSwitchAction = action
         return self
     }
+    
+    func dragEnable(_ bool: Bool = false) -> BottomSheet {
+        self.configuration.isDraggable = bool
+        return self
+    }
 }
